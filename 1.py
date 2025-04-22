@@ -77,7 +77,7 @@ def get_showed_content(page,month_to_get,month_to_stop):
                         continue
                     
 
-                page.run_js('window.scrollBy(0, 2000)')  
+                page.run_js('window.scrollBy(0, 5000)')  
 
             except DrissionPage.errors.ElementLostError:
                 print("元素失效，重新获取...")
@@ -93,7 +93,7 @@ def get_ranged_content(page,month):
 
     try:
         while True:
-            page.run_js('window.scrollBy(0, 2000)')  
+            page.run_js('window.scrollBy(0, 5000)')  
             divs = page.eles('xpath://div[contains(@aria-label, "时间线：") and contains(@aria-label, "的帖子")]/div/div')
             for div in divs:
                 time_element = div.ele(f'xpath:.//a[contains(@href, "/status/")]')
