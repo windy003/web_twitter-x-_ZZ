@@ -108,18 +108,37 @@
         
         // 处理内容
         function processContent(text, authorName, subfolderName) {
-            // 按<a href=配对的方式解析内容
+            // 按行分割，每行是一个完整条目
             const entries = [];
             const lines = text.split('\n').filter(line => line.trim() !== '');
             
             for (let i = 0; i < lines.length; i++) {
-                if (lines[i].includes('<a href=')) {
-                    const entry = {
-                        link: lines[i],
-                        content: lines[i+1] || ''
-                    };
-                    entries.push(entry);
-                    i++; // 跳过内容行
+                const line = lines[i];
+                if (line.includes('<a href=')) {
+                    // 提取链接部分
+                    const linkMatch = line.match(/(<a href=.*?<\/a>)/);
+                    if (linkMatch) {
+                        const link = linkMatch[1];
+                        // 提取内容部分（链接后面的文本）
+                        const content = line.replace(linkMatch[1], '').trim();
+                        
+                        entries.push({
+                            link: link,
+                            content: content
+                        });
+                    } else {
+                        // 如果没有匹配到链接格式，就把整行作为内容
+                        entries.push({
+                            link: '',
+                            content: line
+                        });
+                    }
+                } else {
+                    // 没有链接的行，作为纯内容
+                    entries.push({
+                        link: '',
+                        content: line
+                    });
                 }
             }
             
@@ -146,7 +165,11 @@
         // 显示选中的条目
         function displayEntries(entries) {
             outputDiv.innerHTML = entries.map(entry => {
-                return `<p style="word-break: break-word; white-space: pre-wrap;">${entry.link}<br>${entry.content}</p>`;
+                if (entry.link) {
+                    return `<p style="word-break: break-word; white-space: pre-wrap;">${entry.link}<br>${entry.content}</p>`;
+                } else {
+                    return `<p style="word-break: break-word; white-space: pre-wrap;">${entry.content}</p>`;
+                }
             }).join('');
         }
         
