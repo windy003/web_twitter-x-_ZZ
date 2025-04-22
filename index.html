@@ -19,124 +19,207 @@
 <body style="background-color:  #F2F0E9;">
     <h1>随机展示x作者的 5 个元素</h1>
     
-
-
     <div style="margin-top: 20px; font-size: 20px;">
-        <label for="menu">选择爬取的作者</label>            
-        <select id="menu" style="font-size: 20px; color: #333; background-color: #f6f2f2; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-            <option value="1">geek</option>
-            <option value="2">返璞归真</option>
-            <option value="4">空</option>
+        <label for="authorSelect">选择爬取的作者</label>            
+        <select id="authorSelect" style="font-size: 20px; color: #333; background-color: #f6f2f2; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+            <option value="geek">geek</option>
+            <option value="返璞归真">返璞归真</option>
+            <option value="空">空</option>
         </select>
     </div>
     
-
     <div style="margin-top: 20px; font-size: 20px;">
-        <label for="menu">选择子文件夹</label>            
-        <select id="menu" style="font-size: 20px; color: #333; background-color: #f6f2f2; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-            <option value="1">geek</option>
-            <option value="2">返璞归真</option>
-            <option value="4">空</option>
+        <label for="subfolderSelect">选择子文件夹</label>            
+        <select id="subfolderSelect" style="font-size: 20px; color: #333; background-color: #f6f2f2; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+            <!-- 子文件夹选项会动态生成 -->
         </select>
     </div>
 
-
     <div id="info" style="margin-top: 20px; font-size: 20px; font-style: italic;color: #5007d7;"></div>
-
-
-
-    <div id="output" style="font-size: 40px; color: #333; line-height: 1.5;    "></div>
-
-
+    <div id="output" style="font-size: 40px; color: #333; line-height: 1.5;"></div>
     
     <button id="btn" style="font-size: 20px; color: #f6f2f2; background-color: #4caf50; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;width: 100%;">随机刷新</button>
 
-
-
     <script>
-        // 文件路径
-
-        const menu = document.getElementById('menu');
+        const authorSelect = document.getElementById('authorSelect');
+        const subfolderSelect = document.getElementById('subfolderSelect');
         const infoDiv = document.getElementById('info');
-
-        const refresh_btn = document.getElementById('btn');
+        const outputDiv = document.getElementById('output');
+        const refreshBtn = document.getElementById('btn');
         
-        refresh_btn.addEventListener('click', function() {
-            const selectedValue = menu.value;
-            const selectedOption = menu.options[menu.selectedIndex];  // 获取选中的option元素
-            const selectedText = selectedOption.text;  // 获取option的文本内容
-            const fileUrl = `./stocks/${selectedText}.txt`;
-            loadAndDisplayRandomLines(fileUrl);
-
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'  // 添加平滑滚动效果
-            });
-        });
+        // 作者目录结构
+        const authorStructure = {
+            "geek": ["3月", "4月", "5月"],
+            "返璞归真": ["2月", "3月", "4月"],
+            "空": []
+        };
         
-        menu.addEventListener('change', function() {
-            const selectedValue = this.value;
-
-            const selectedOption = this.options[this.selectedIndex];  // 获取选中的option元素
-            const selectedText = selectedOption.text;  // 获取option的文本内容
+        // 初始化子文件夹下拉菜单
+        function updateSubfolders(authorName) {
+            subfolderSelect.innerHTML = '';
             
-            const fileUrl = `./stocks/${selectedText}.txt`;
+            const subfolders = authorStructure[authorName] || [];
             
-        
-            // 根据选择的值显示不同信息
-            switch(selectedValue) {
-                case '1':
-                    infoDiv.innerHTML = 'geek 3月份的推文: 爬取时间:2025-4-22,DP滚到3月份用了5分钟,整个过程1个小时左右,scrollBy(0,2000) 滚动了2000px';
-                    break;
-                case '2':
-                    infoDiv.innerHTML = '';
-                    break;
-                case '4':
-                    infoDiv.innerHTML = '';
-                    break;
-                default:
-                    infoDiv.innerHTML = '';
+            if (subfolders.length === 0) {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "无子文件夹";
+                subfolderSelect.appendChild(option);
+                
+                // 清空输出区
+                infoDiv.innerHTML = "该作者没有可用的子文件夹";
+                outputDiv.innerHTML = "";
+                return;
             }
-
-
-            loadAndDisplayRandomLines(fileUrl);
-    });
-
-        
-        // 读取文件并处理
-        async function loadAndDisplayRandomLines(fileUrl) {
-            try {
-                // 获取文件内容
-                const response = await fetch(fileUrl);
-                const text = await response.text();
-
-                // 按行分割
-                const lines = text.split('\n').filter(line => line.trim() !== '');
-
-                // 随机选取 5 个元素
-                const randomLines = getRandomElements(lines, 5);
-
-                // 展示结果
-                const output = document.getElementById('output');
-                output.innerHTML = randomLines.map(line => `<p style="word-break: break-word; white-space: pre-wrap;">${line.replace(/(<a[^>]+>.*?)(<\/a>)/, '$1<br>$2')}</p>`).join('');
-            } catch (error) {
-                console.error('读取文件失败:', error);
+            
+            subfolders.forEach(subfolder => {
+                const option = document.createElement('option');
+                option.value = subfolder;
+                option.textContent = subfolder;
+                subfolderSelect.appendChild(option);
+            });
+            
+            // 自动加载第一个子文件夹
+            if (subfolders.length > 0) {
+                loadContent(authorName, subfolders[0]);
             }
         }
-
-        // 从数组中随机选取指定数量的元素
-        function getRandomElements(array, count) {
-            const shuffled = array.sort(() => 0.5 - Math.random());
+        
+        // 加载内容文件
+        async function loadContent(authorName, subfolderName) {
+            try {
+                const response = await fetch(`./stocks/${authorName}/${subfolderName}.txt`);
+                if (!response.ok) {
+                    // 尝试第二种路径格式
+                    const alternativeResponse = await fetch(`./stocks/${authorName}/${subfolderName}/tmp.txt`);
+                    if (!alternativeResponse.ok) {
+                        throw new Error(`无法加载${authorName}/${subfolderName}的内容`);
+                    }
+                    return processContent(await alternativeResponse.text(), authorName, subfolderName);
+                }
+                
+                processContent(await response.text(), authorName, subfolderName);
+            } catch (error) {
+                console.error('加载内容失败:', error);
+                infoDiv.innerHTML = `加载${authorName}/${subfolderName}的内容失败`;
+                outputDiv.innerHTML = '';
+            }
+        }
+        
+        // 处理内容
+        function processContent(text, authorName, subfolderName) {
+            // 按<a href=配对的方式解析内容
+            const entries = [];
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+            
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].includes('<a href=')) {
+                    const entry = {
+                        link: lines[i],
+                        content: lines[i+1] || ''
+                    };
+                    entries.push(entry);
+                    i++; // 跳过内容行
+                }
+            }
+            
+            // 随机选择5条
+            const selectedEntries = getRandomEntries(entries, 5);
+            
+            // 显示内容
+            displayEntries(selectedEntries);
+            
+            // 更新信息区
+            infoDiv.innerHTML = `${authorName} / ${subfolderName} (共${entries.length}条)`;
+        }
+        
+        // 随机选择条目
+        function getRandomEntries(entries, count) {
+            if (entries.length <= count) {
+                return entries;
+            }
+            
+            const shuffled = [...entries].sort(() => 0.5 - Math.random());
             return shuffled.slice(0, count);
         }
         
-       
-
-
-
-
-        // 页面加载时执行
-        window.onload = loadAndDisplayRandomLines;
+        // 显示选中的条目
+        function displayEntries(entries) {
+            outputDiv.innerHTML = entries.map(entry => {
+                return `<p style="word-break: break-word; white-space: pre-wrap;">${entry.link}<br>${entry.content}</p>`;
+            }).join('');
+        }
+        
+        // 事件监听
+        authorSelect.addEventListener('change', function() {
+            updateSubfolders(this.value);
+        });
+        
+        subfolderSelect.addEventListener('change', function() {
+            if (this.value) {
+                loadContent(authorSelect.value, this.value);
+            }
+        });
+        
+        refreshBtn.addEventListener('click', function() {
+            if (subfolderSelect.value) {
+                loadContent(authorSelect.value, subfolderSelect.value);
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+        });
+        
+        // 自动扫描子文件夹
+        async function scanSubfolders() {
+            const updatedStructure = {};
+            
+            for (const author of Object.keys(authorStructure)) {
+                updatedStructure[author] = [];
+                
+                try {
+                    const response = await fetch(`./stocks/${author}/`);
+                    if (!response.ok) continue;
+                    
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, "text/html");
+                    const links = doc.querySelectorAll('a');
+                    
+                    for (const link of links) {
+                        const href = link.getAttribute('href');
+                        if (href && (href.endsWith('/') || href.endsWith('.txt'))) {
+                            const folderName = href.replace('/', '').replace('.txt', '');
+                            if (folderName && folderName !== '.' && folderName !== '..') {
+                                updatedStructure[author].push(folderName);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error(`扫描${author}文件夹失败:`, error);
+                }
+            }
+            
+            // 仅当找到子文件夹时更新结构
+            for (const author of Object.keys(updatedStructure)) {
+                if (updatedStructure[author].length > 0) {
+                    authorStructure[author] = updatedStructure[author];
+                }
+            }
+            
+            // 更新当前选中的作者的子文件夹
+            updateSubfolders(authorSelect.value);
+        }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化界面
+            updateSubfolders(authorSelect.value);
+            
+            // 尝试自动扫描子文件夹
+            scanSubfolders();
+        });
     </script>
 </body>
 </html>
