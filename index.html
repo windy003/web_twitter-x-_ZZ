@@ -112,6 +112,9 @@
             const entries = [];
             const lines = text.split('\n').filter(line => line.trim() !== '');
             
+            // 保存第一行用于显示在infoDiv中
+            const firstLine = lines.length > 0 ? lines[0] : '';
+            
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
                 if (line.includes('<a href=')) {
@@ -148,8 +151,8 @@
             // 显示内容
             displayEntries(selectedEntries);
             
-            // 更新信息区
-            infoDiv.innerHTML = `${authorName} / ${subfolderName} (共${entries.length}条)`;
+            // 更新信息区：显示作者/子文件夹，条目数量，以及文件第一行内容
+            infoDiv.innerHTML = `${authorName} / ${subfolderName} (共${entries.length}条)<br>${firstLine}`;
         }
         
         // 随机选择条目
