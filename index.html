@@ -49,9 +49,9 @@
         
         // 作者目录结构
         const authorStructure = {
-            "geek": ["3月", "4月", "5月"],
-            "返璞归真": ["2月", "3月", "4月"],
-            "空": []
+            "geek": ["2025-3.txt"],
+            "返璞归真": ["2025-3.txt"],
+            "空": ["2025-3.txt"]
         };
         
         // 初始化子文件夹下拉菜单
@@ -88,7 +88,7 @@
         // 加载内容文件
         async function loadContent(authorName, subfolderName) {
             try {
-                const response = await fetch(`./stocks/${authorName}/${subfolderName}.txt`);
+                const response = await fetch(`./stocks/${authorName}/${subfolderName}`);
                 if (!response.ok) {
                     // 尝试第二种路径格式
                     const alternativeResponse = await fetch(`./stocks/${authorName}/${subfolderName}/tmp.txt`);
@@ -197,54 +197,11 @@
             }
         });
         
-        // 自动扫描子文件夹
-        async function scanSubfolders() {
-            const updatedStructure = {};
-            
-            for (const author of Object.keys(authorStructure)) {
-                updatedStructure[author] = [];
-                
-                try {
-                    const response = await fetch(`./stocks/${author}/`);
-                    if (!response.ok) continue;
-                    
-                    const html = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, "text/html");
-                    const links = doc.querySelectorAll('a');
-                    
-                    for (const link of links) {
-                        const href = link.getAttribute('href');
-                        if (href && (href.endsWith('/') || href.endsWith('.txt'))) {
-                            const folderName = href.replace('/', '').replace('.txt', '');
-                            if (folderName && folderName !== '.' && folderName !== '..') {
-                                updatedStructure[author].push(folderName);
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.error(`扫描${author}文件夹失败:`, error);
-                }
-            }
-            
-            // 仅当找到子文件夹时更新结构
-            for (const author of Object.keys(updatedStructure)) {
-                if (updatedStructure[author].length > 0) {
-                    authorStructure[author] = updatedStructure[author];
-                }
-            }
-            
-            // 更新当前选中的作者的子文件夹
-            updateSubfolders(authorSelect.value);
-        }
-        
         // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化界面
             updateSubfolders(authorSelect.value);
             
-            // 尝试自动扫描子文件夹
-            scanSubfolders();
         });
     </script>
 </body>
