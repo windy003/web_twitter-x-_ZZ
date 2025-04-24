@@ -22,9 +22,7 @@
     <div style="margin-top: 20px; font-size: 20px;">
         <label for="authorSelect">选择爬取的作者</label>            
         <select id="authorSelect" style="font-size: 20px; color: #333; background-color: #f6f2f2; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-            <option value="geek">geek</option>
-            <option value="返璞归真">返璞归真</option>
-            <option value="空">空</option>
+            <!-- 作者选项会动态生成 -->
         </select>
     </div>
     
@@ -177,32 +175,47 @@
             }).join('');
         }
         
-        // 事件监听
-        authorSelect.addEventListener('change', function() {
-            updateSubfolders(this.value);
-        });
-        
-        subfolderSelect.addEventListener('change', function() {
-            if (this.value) {
-                loadContent(authorSelect.value, this.value);
-            }
-        });
-        
-        refreshBtn.addEventListener('click', function() {
-            if (subfolderSelect.value) {
-                loadContent(authorSelect.value, subfolderSelect.value);
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            }
-        });
-        
-        // 页面加载完成后执行
-        document.addEventListener('DOMContentLoaded', function() {
-            // 初始化界面
-            updateSubfolders(authorSelect.value);
+        // 初始化作者下拉菜单
+        function initializeAuthorSelect() {
+            authorSelect.innerHTML = '';
             
+            // 将 authorStructure 中的每个作者添加为选项
+            for (const author in authorStructure) {
+                const option = document.createElement('option');
+                option.value = author;
+                option.textContent = author;
+                authorSelect.appendChild(option);
+            }
+        }
+        
+        // 页面加载时的初始化代码
+        window.addEventListener('DOMContentLoaded', function() {
+            // 初始化作者下拉菜单
+            initializeAuthorSelect();
+            
+            // 添加作者选择变化的事件监听器
+            authorSelect.addEventListener('change', function() {
+                updateSubfolders(this.value);
+            });
+            
+            // 添加子文件夹选择变化的事件监听器
+            subfolderSelect.addEventListener('change', function() {
+                if (this.value) {
+                    loadContent(authorSelect.value, this.value);
+                }
+            });
+            
+            // 如果作者下拉菜单有选项，默认选择第一个
+            if (authorSelect.options.length > 0) {
+                updateSubfolders(authorSelect.options[0].value);
+            }
+            
+            // 刷新按钮事件
+            refreshBtn.addEventListener('click', function() {
+                if (authorSelect.value && subfolderSelect.value) {
+                    loadContent(authorSelect.value, subfolderSelect.value);
+                }
+            });
         });
     </script>
 </body>
