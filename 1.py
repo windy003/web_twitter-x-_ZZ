@@ -13,7 +13,7 @@ options.set_argument('--user-data-dir=./chrome_data')
 page = ChromiumPage(options)
 
 
-url = "https://x.com/Sequoia777777"
+url = "https://x.com/lindaofheaven"
 
 
 if not os.path.exists('./tmp.txt'):
@@ -59,13 +59,13 @@ def get_showed_content(page,month_to_get,month_to_stop):
 
                             # 处理div部分        
                             div_content = ""
-                            div_content = div.ele('xpath:.//div[@dir="auto"]')
-                            if div_content:
-                                for ele in div_content.eles('*'):
+                            div_elements = div.eles('xpath:.//div[@dir="auto"]')
+                            if div_elements:
+                                for ele in div_elements:
                                     if ele.tag != 'img':
-                                        div_content += ele.html
-                            
-                                content = remove_lf(div_content.text) + "\n"
+                                        div_content += ele.text
+                                
+                                content = remove_lf(div_content) + "\n"
                                 with open('./tmp.txt', 'r', encoding='utf-8') as f:
                                     if content not in f.read():
                                         append_to_file(content)
@@ -139,8 +139,8 @@ def get_ranged_content(page,month):
 try:
     page.get(url)
     start_time = time.time()
-    if get_ranged_content(page,"3"):
-        get_showed_content(page,"3","2")
+    if get_ranged_content(page,"2"):
+        get_showed_content(page,"2","1")
 
     total_end_time = time.time()
     elapsed_total_time = (total_end_time - start_time)/60
