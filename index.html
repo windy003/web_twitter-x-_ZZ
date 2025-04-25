@@ -214,6 +214,11 @@
             refreshBtn.addEventListener('click', function() {
                 if (authorSelect.value && subfolderSelect.value) {
                     loadContent(authorSelect.value, subfolderSelect.value);
+                    
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'  // 添加平滑滚动效果
+                    }); 
                 }
             });
         });
