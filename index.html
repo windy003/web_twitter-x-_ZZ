@@ -34,6 +34,9 @@
     </div>
 
     <div id="info" style="margin-top: 20px; font-size: 20px; color: #5007d7;"></div>
+
+    <br><br>
+
     <div id="output" style="font-size: 40px; color: #333; line-height: 1.5;"></div>
     
     <button id="btn" style="font-size: 20px; color: #f6f2f2; background-color: #4caf50; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;width: 100%;">随机刷新</button>
@@ -168,7 +171,11 @@
         function displayEntries(entries) {
             outputDiv.innerHTML = entries.map(entry => {
                 if (entry.link) {
-                    return `<p style="word-break: break-word; white-space: pre-wrap;">${entry.link}<br>${entry.content}</p>`;
+                    return `<div style="display: flex; justify-content: space-between;">
+                                <div style="font-size: 20px;">${entry.link}</div>
+                                <div style="font-size: 20px;">${entry.link}</div>
+                            </div>
+                            <div style="font-size: 20px;">${entry.content}</div><br>`
                 } else {
                     return `<p style="word-break: break-word; white-space: pre-wrap;">${entry.content}</p>`;
                 }
