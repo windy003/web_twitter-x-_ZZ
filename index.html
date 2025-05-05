@@ -56,6 +56,16 @@
             "空": ["2025-3.txt"]
         };
         
+        // 保存选择的作者到localStorage
+        function saveSelectedAuthor(author) {
+            localStorage.setItem('selectedAuthor', author);
+        }
+        
+        // 获取保存的作者
+        function getSavedAuthor() {
+            return localStorage.getItem('selectedAuthor');
+        }
+        
         // 初始化子文件夹下拉菜单
         function updateSubfolders(authorName) {
             subfolderSelect.innerHTML = '';
@@ -200,9 +210,23 @@
             // 初始化作者下拉菜单
             initializeAuthorSelect();
             
+            // 获取保存的作者
+            const savedAuthor = getSavedAuthor();
+            
+            // 如果有保存的作者，选择它
+            if (savedAuthor) {
+                authorSelect.value = savedAuthor;
+                updateSubfolders(savedAuthor);
+            } else if (authorSelect.options.length > 0) {
+                // 否则选择第一个作者
+                updateSubfolders(authorSelect.options[0].value);
+            }
+            
             // 添加作者选择变化的事件监听器
             authorSelect.addEventListener('change', function() {
-                updateSubfolders(this.value);
+                const selectedAuthor = this.value;
+                saveSelectedAuthor(selectedAuthor);
+                updateSubfolders(selectedAuthor);
             });
             
             // 添加子文件夹选择变化的事件监听器
@@ -212,11 +236,6 @@
                 }
             });
             
-            // 如果作者下拉菜单有选项，默认选择第一个
-            if (authorSelect.options.length > 0) {
-                updateSubfolders(authorSelect.options[0].value);
-            }
-            
             // 刷新按钮事件
             refreshBtn.addEventListener('click', function() {
                 if (authorSelect.value && subfolderSelect.value) {
@@ -224,7 +243,7 @@
                     
                     window.scrollTo({
                         top: 0,
-                        behavior: 'smooth'  // 添加平滑滚动效果
+                        behavior: 'smooth'
                     }); 
                 }
             });
